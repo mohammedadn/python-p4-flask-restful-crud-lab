@@ -48,19 +48,33 @@ class PlantByID(Resource):
         return make_response(jsonify(plant), 200)
 
     def patch(self, id):
-        plant = Plant.query.filter_by(id=id).first()
         data = request.get_json()
-        for key in data:
-            setattr(plant, key, data[key])
-        db.session.add(plant)
+
+        updated_plant = Plant.query.filter_by(id=id).first()
+
+        for attr in data:
+            setattr(updated_plant, attr, data[attr])
+
+        db.session.add(updated_plant)
         db.session.commit()
-        return plant.to_dict(), 202
+         
+        response = make_response(
+            updated_plant.to_dict(),
+            200
+        )
+        return response
 
     def delete(self, id):
-        plant = Plant.query.filter_by(id=id).first()
-        db.session.delete(plant)
+        delete_plant = Plant.query.filter_by(id=id).first()
+
+        db.session.delete(delete_plant)
         db.session.commit()
-        return {},204
+        
+        response = make_response(
+            {"message":"The Plant has been deleted successfully"},
+            204
+        )
+        return response
 
 api.add_resource(PlantByID, '/plants/<int:id>')
 
